@@ -3,7 +3,7 @@ import { UserService } from './user.service';
 import { UpdateUserDto } from '../dto/user.dto';
 import { Request } from 'express';
 import { JwtGuard } from '../shared/guards';
-@Controller('users')
+@Controller('api/users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
   @UseGuards(JwtGuard)

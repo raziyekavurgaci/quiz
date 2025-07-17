@@ -12,8 +12,8 @@ export class AuthService {
   ) {}
 
   async checkUserByUsername(username: string) {
-    const user = await this.userRepository.getByUsername(username);
-    return user ? user : null;
+    const user = await this.userRepository.search(username);
+    return user ? user : undefined;
   }
 
   async register(data: RegisterUserDto) {
@@ -24,7 +24,7 @@ export class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
-    const createdUser = await this.userRepository.createUser({
+    const createdUser = await this.userRepository.create({
       ...data,
       password: hashedPassword,
     });

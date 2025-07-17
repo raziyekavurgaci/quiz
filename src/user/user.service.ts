@@ -11,7 +11,7 @@ export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
   async checkUserById(id: string) {
-    const user = await this.userRepository.getById(id);
+    const user = await this.userRepository.show(id);
     return user ? user : null;
   }
 
@@ -34,14 +34,12 @@ export class UserService {
     }
 
     if (data.username) {
-      const existUserName = await this.userRepository.getByUsername(
-        data.username,
-      );
+      const existUserName = await this.userRepository.search(data.username);
       if (existUserName) {
         throw new BadRequestException('Username already exists');
       }
     }
-    const updatedUser = await this.userRepository.updateUser(userId, data);
+    const updatedUser = await this.userRepository.update(userId, data);
     const { password, ...userWithoutPassword } = updatedUser;
     return { message: 'User updated successfully', data: userWithoutPassword };
   }

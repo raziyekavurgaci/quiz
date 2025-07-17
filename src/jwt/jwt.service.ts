@@ -16,6 +16,28 @@ export class JwtService {
     return authorizationHeader.split(' ')[1];
   }
 
+  private async checkToken(jti: string) {
+    const token = await this.prisma.token.findUnique({
+      where: {
+        id: jti,
+      },
+    });
+
+    if (!token) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    if (token.expiresAt < new Date()) {
+      throw new UnauthorizedException('Token expired');
+    }
+
+    if (token.revokedAt) {
+      throw new UnauthorizedException('Token has been revoked');
+    }
+
+    return token;
+  }
+
   generateAccessToken(payload: TokenPayload) {
     const accessToken = jwt.sign(
       payload,
@@ -67,22 +89,11 @@ export class JwtService {
       process.env.JWT_REFRESH_SECRET || 'secret_refresh_token',
     );
 
-    const token = await this.prisma.token.findUnique({
-      where: {
-        id: decoded.jti,
-      },
-    });
-
-    if (!token) {
+    if (!decoded.jti) {
       throw new UnauthorizedException('Invalid token');
     }
-    if (token.expiresAt < new Date()) {
-      throw new UnauthorizedException('Token expired');
-    }
 
-    if (token.revokedAt) {
-      throw new UnauthorizedException('Token has been revoked');
-    }
+    const token = await this.checkToken(decoded.jti);
 
     await this.prisma.token.update({
       where: {
@@ -106,23 +117,11 @@ export class JwtService {
       process.env.JWT_REFRESH_SECRET || 'secret_refresh_token',
     );
 
-    const token = await this.prisma.token.findUnique({
-      where: {
-        id: decoded.jti,
-      },
-    });
-
-    if (!token) {
+    if (!decoded.jti) {
       throw new UnauthorizedException('Invalid token');
     }
 
-    if (token.expiresAt < new Date()) {
-      throw new UnauthorizedException('Token expired');
-    }
-
-    if (token.revokedAt) {
-      throw new UnauthorizedException('Token has been revoked');
-    }
+    const token = await this.checkToken(decoded.jti);
 
     await this.prisma.token.update({
       where: {
@@ -158,9 +157,16 @@ export class JwtService {
       process.env.JWT_REFRESH_SECRET || 'secret_refresh_token',
     );
 
+    if (!decoded.jti) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    await this.checkToken(decoded.jti);
+
     await this.prisma.token.updateMany({
       where: {
         userId: decoded.userId,
+        revokedAt: null,
       },
       data: {
         revokedAt: new Date(),

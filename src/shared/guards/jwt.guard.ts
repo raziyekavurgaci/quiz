@@ -18,12 +18,16 @@ export class JwtGuard implements CanActivate {
     const authHeader = request.headers?.authorization as string;
 
     if (!authHeader) {
-      throw new UnauthorizedException('No authorization header found');
+      throw new UnauthorizedException(
+        'Invalid or missing Authorization header',
+      );
     }
 
     const token = authHeader.split(' ')[1];
     if (!token) {
-      throw new UnauthorizedException('No token provided');
+      throw new UnauthorizedException(
+        'Invalid or missing Authorization header',
+      );
     }
 
     try {

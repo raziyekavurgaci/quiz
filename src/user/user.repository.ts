@@ -7,19 +7,19 @@ import { UpdateUserDto } from '../dto/user.dto';
 export class UserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createUser(data: RegisterUserDto) {
+  async create(data: RegisterUserDto) {
     return this.prisma.user.create({
       data,
     });
   }
 
-  async getByUsername(username: string) {
+  async search(username: string) {
     return this.prisma.user.findUnique({
       where: { username },
     });
   }
 
-  async getUsers() {
+  async index() {
     return this.prisma.user.findMany({
       orderBy: {
         createdAt: 'desc',
@@ -27,13 +27,13 @@ export class UserRepository {
     });
   }
 
-  async getById(id: string) {
+  async show(id: string) {
     return this.prisma.user.findUnique({
       where: { id },
     });
   }
 
-  async updateUser(id: string, data: UpdateUserDto) {
+  async update(id: string, data: UpdateUserDto) {
     return this.prisma.user.update({
       where: { id },
       data,
