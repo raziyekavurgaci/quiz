@@ -1,215 +1,230 @@
 # Quiz Uygulaması API
-github linki:https://github.com/raziyekavurgaci/quiz.git
+GitHub: https://github.com/raziyekavurgaci/quiz.git
 
-Bu proje, öğretmen ve öğrenciler için tasarlanmış bir quiz/sınav sistemi API'sidir. NestJS framework'ü kullanılarak geliştirilmiştir.
+Öğretmen ve öğrenciler için tasarlanmış quiz/sınav sistemi API'si. NestJS ile geliştirilmiştir.
 
 ## 🚀 Özellikler
 
-### 👨‍🏫 Kullanıcı Yönetimi
-- **Kayıt ve Giriş**: Kullanıcılar sisteme kayıt olabilir ve giriş yapabilir
-- **Rol Tabanlı Yetkilendirme**: TEACHER (Öğretmen) ve STUDENT (Öğrenci) rolleri
-- **JWT Authentication**: Güvenli token tabanlı kimlik doğrulama
-- **Çoklu Oturum Yönetimi**: Token yenileme, logout ve tüm cihazlardan çıkış
+### 👤 Kullanıcı Sistemi
+- Kayıt/Giriş sistemi (TEACHER/STUDENT rolleri)
+- JWT Authentication
+- Çoklu oturum yönetimi
+- Profil güncelleme
 
-### 📝 Soru Yönetimi
-- **Soru Oluşturma**: Öğretmenler çoktan seçmeli sorular oluşturabilir
-- **Soru Görüntüleme**: Tüm kullanıcılar soruları görüntüleyebilir
-- **Soru Güncelleme**: Öğretmenler mevcut soruları düzenleyebilir
-- **Soru Silme**: Öğretmenler soruları silebilir
-- **Çoktan Seçmeli Seçenekler**: A, B, C, D, E seçenekleri ile soru oluşturma
+### 📝 Soru Sistemi  
+- Öğretmenler soru oluşturabilir/düzenleyebilir/silebilir
+- Çoktan seçmeli sorular (A-E seçenekleri)
+- Tüm kullanıcılar soruları görüntüleyebilir
+- Rastgele soru seçimi
+
+### 🎯 Cevap Sistemi
+- Öğrenciler soru cevaplayabilir
+- Anında doğru/yanlış geri bildirimi
+- Cevap geçmişi
+- Otomatik puanlama
 
 ### 🔐 Güvenlik
-- **Şifre Hashleme**: bcrypt ile güvenli şifre saklama
-- **JWT Token Yönetimi**: Access token ve refresh token sistemi
-- **Role-based Access Control**: Endpoint seviyesinde rol kontrolü
-- **Request Validation**: DTO'lar ile veri doğrulama
+- bcrypt şifre hashleme
+- JWT token yönetimi
+- Rol tabanlı yetkilendirme
+- Soft delete sistemi
 
 ## 🛠️ Teknolojiler
-
-- **Backend Framework**: NestJS
-- **Veritabanı**: PostgreSQL
-- **ORM**: Prisma
-- **Authentication**: JWT (jsonwebtoken)
-- **Validation**: class-validator, class-transformer
-- **Password Hashing**: bcrypt
-- **TypeScript**: Full TypeScript desteği
+- **Backend**: NestJS ^11.0.1
+- **Veritabanı**: PostgreSQL + Prisma ^6.10.1
+- **Authentication**: JWT
+- **Validation**: class-validator
+- **TypeScript**: Full support
 
 ## 📁 Proje Yapısı
-
 ```
 src/
-├── auth/           # Kimlik doğrulama modülü
-├── user/           # Kullanıcı yönetimi modülü
-├── question/       # Soru yönetimi modülü
-├── prisma/         # Veritabanı bağlantı modülü
-├── jwt/            # JWT servis modülü
-├── dto/            # Data Transfer Objects
-├── shared/         # Paylaşılan bileşenler
-│   ├── decorators/ # Custom decorators
-│   └── guards/     # Authentication guards
-└── types/          # TypeScript tip tanımları
+├── auth/           # Kimlik doğrulama
+├── user/           # Kullanıcı yönetimi
+├── question/       # Soru yönetimi
+│   ├── answer/     # Cevap sistemi
+│   ├── option/     # Seçenek yönetimi
+│   └── score/      # Puanlama sistemi
+├── prisma/         # Veritabanı
+├── jwt/            # JWT servisleri
+├── dto/            # Data transfer objects
+└── shared/         # Guards, decorators
 ```
 
-## 🗄️ Veritabanı Şeması
-
-### User (Kullanıcı)
-- `id`: UUID (Primary Key)
-- `name`: Kullanıcı adı
-- `username`: Benzersiz kullanıcı adı
-- `password`: Hash'lenmiş şifre
-- `role`: TEACHER veya STUDENT
-
-### Question (Soru)
-- `id`: UUID (Primary Key)
-- `questionText`: Soru metni
-- `options`: İlişkili seçenekler
-
-### Option (Seçenek)
-- `id`: UUID (Primary Key)
-- `optionText`: Seçenek metni
-- `optionType`: A, B, C, D, E
-- `isCorrect`: Doğru cevap kontrolü
-
-### Answer (Cevap)
-- `id`: UUID (Primary Key)
-- `userId`: Cevap veren kullanıcı
-- `questionId`: İlgili soru
-- `optionId`: Seçilen seçenek
-- `isCorrect`: Cevabın doğruluğu
+## 🗄️ Veritabanı
+- **User**: Kullanıcı bilgileri (id, name, username, password, role)
+- **Question**: Soru bilgileri (id, questionText)
+- **Option**: Seçenekler (id, optionText, optionType, isCorrect)
+- **Answer**: Cevaplar (id, userId, questionId, optionId, isCorrect)
+- **Token**: Oturum yönetimi (id, userId, expiresAt, revokedAt)
 
 ## 🔌 API Endpoints
 
+### Health Check
+- `GET /` - API durumu kontrolü (Health check)
+
 ### Authentication (/api/auth)
 - `POST /register` - Kullanıcı kaydı
-- `POST /login` - Giriş yapma
-- `POST /logout` - Çıkış yapma
+- `POST /login` - Giriş
+- `POST /logout` - Çıkış
 - `POST /refresh` - Token yenileme
 - `POST /logout-all` - Tüm cihazlardan çıkış
 
 ### Users (/api/users)
-- `GET /me` - Mevcut kullanıcı bilgileri
-- `PATCH /` - Kullanıcı bilgilerini güncelleme
+- `GET /me` - Profil bilgileri
+- `PATCH /` - Profil güncelleme
 
 ### Questions (/api/questions)
-- `POST /` - Soru oluşturma (Sadece öğretmenler)
+- `POST /` - Soru oluşturma (🔒 Öğretmen)
 - `GET /` - Tüm soruları listeleme
-- `GET /:id` - Belirli bir soruyu görüntüleme
-- `PATCH /:id` - Soru güncelleme (Sadece öğretmenler)
-- `DELETE /:id` - Soru silme (Sadece öğretmenler)
+- `GET /random` - Rastgele soru getirme
+- `GET /:id` - Tek soru görüntüleme
+- `PATCH /:id` - Soru güncelleme (🔒 Öğretmen)
+- `DELETE /:id` - Soru silme (🔒 Öğretmen)
+- `GET /score` - Kendi skorunu görme (🔒 Öğrenci)
+- `GET /score/:userId` - Öğrenci skorunu görme (🔒 Öğretmen)
 
-## 🚀 Kurulum ve Çalıştırma
+## 📋 API Response Formatı
+Tüm API yanıtları standart formatta döner:
+```json
+{
+  "message": "İşlem açıklaması",
+  "data": { /* Veri objesi */ }
+}
+```
+
+## 🚀 Kurulum
 
 ### Gereksinimler
 - Node.js (v16+)
 - PostgreSQL
-- npm veya yarn
+- npm/yarn
 
-### Kurulum Adımları
-
-1. **Bağımlılıkları yükleyin:**
+### Adımlar
 ```bash
+# 1. Projeyi klonla
+git clone https://github.com/raziyekavurgaci/quiz.git
+cd quiz
+
+# 2. Bağımlılıkları yükle
 npm install
-```
 
-2. **Çevre değişkenlerini ayarlayın:**
-`.env` dosyası oluşturun ve aşağıdaki değişkenleri ekleyin:
-```env
+# 3. Çevre değişkenlerini ayarla (.env)
 DATABASE_URL="postgresql://username:password@localhost:5432/quiz_db"
-JWT_SECRET="your-secret-key"
+JWT_SECRET="your-main-secret-key"
+JWT_ACCESS_SECRET="your-access-token-secret"
+JWT_REFRESH_SECRET="your-refresh-token-secret"
 PORT=3000
-```
 
-3. **Veritabanını hazırlayın:**
-```bash
+# 4. Veritabanını hazırla
 npx prisma migrate dev
 npx prisma generate
-```
 
-4. **Uygulamayı başlatın:**
-
-**Development modunda:**
-```bash
+# 5. Uygulamayı başlat
 npm run start:dev
 ```
 
-**Production modunda:**
-```bash
-npm run build
-npm run start:prod
-```
+### Environment Variables Açıklaması
+- `DATABASE_URL`: PostgreSQL bağlantı string'i
+- `JWT_SECRET`: Ana JWT secret key
+- `JWT_ACCESS_SECRET`: Access token için secret key
+- `JWT_REFRESH_SECRET`: Refresh token için secret key
+- `PORT`: Sunucu portu (varsayılan: 3000)
 
 ## 📝 Kullanım Örnekleri
 
-### Kayıt Olma
+### Health Check
+```bash
+curl http://localhost:3000/
+# Response: "Hello World!"
+```
+
+### Kayıt
 ```bash
 curl -X POST http://localhost:3000/api/auth/register \
   -H "Content-Type: application/json" \
-  -d '{
-    "name": "Ahmet Yılmaz",
-    "username": "ahmet.yilmaz",
-    "password": "123456"
-  }'
+  -d '{"name": "Test User", "username": "test", "password": "123456"}'
 ```
 
-### Giriş Yapma
+### Giriş
 ```bash
 curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{
-    "username": "ahmet.yilmaz",
-    "password": "123456"
-  }'
+  -d '{"username": "test", "password": "123456"}'
 ```
 
-### Soru Oluşturma (Öğretmen)
+### Rastgele Soru
+```bash
+curl http://localhost:3000/api/questions/random
+```
+
+### Puan Kontrolü (Öğrenci)
+```bash
+curl -X GET http://localhost:3000/api/questions/score \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+### Soru Oluşturma
 ```bash
 curl -X POST http://localhost:3000/api/questions \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
-    "questionText": "Türkiye'nin başkenti neresidir?",
+    "questionText": "2+2 kaçtır?",
     "options": [
-      {
-        "optionText": "İstanbul",
-        "optionType": "A",
-        "isCorrect": false
-      },
-      {
-        "optionText": "Ankara",
-        "optionType": "B",
-        "isCorrect": true
-      }
+      {"optionText": "3", "optionType": "A", "isCorrect": false},
+      {"optionText": "4", "optionType": "B", "isCorrect": true}
     ]
   }'
 ```
 
-## 🧪 Test
-
+## 🧪 Test & Build
 ```bash
-# Unit testler
-npm run test
-
-# Test kapsamı
-npm run test:cov
-
-# E2E testler
-npm run test:e2e
+npm run test          # Unit testler
+npm run test:e2e      # E2E testler  
+npm run build         # Production build
+npm run lint          # Code quality
 ```
 
-## 📦 Build
+## 🚧 Gelecek Planlar
+- Answer/Option/Score endpoint'leri
+- Quiz sistemi
+- AI destekli soru önerisi
+- Gerçek zamanlı sınavlar
 
+## 🔧 Troubleshooting
+
+### Sık Karşılaşılan Sorunlar
+
+**Veritabanı Bağlantı Hatası:**
 ```bash
-npm run build
+# PostgreSQL servisinin çalıştığından emin olun
+sudo service postgresql start
+
+# Veritabanını tekrar migrate edin
+npx prisma migrate reset
 ```
 
-## 🔧 Geliştirme Notları
+**JWT Token Hatası:**
+- Environment variable'ların doğru ayarlandığından emin olun
+- Token'ın `Bearer` prefix'i ile gönderildiğini kontrol edin
 
-- Tüm endpoint'ler `/api` prefix'i ile başlar
-- JWT token'lar Authorization header'ında `Bearer` formatında gönderilmelidir
-- Rol tabanlı yetkilendirme `@Roles()` decorator'ı ile yapılır
-- Tüm DTO'lar validation pipe'ı ile doğrulanır
-- Soft delete kullanılır (deletedAt alanı)
+**Port Zaten Kullanımda:**
+```bash
+# Farklı bir port kullanın
+PORT=3001 npm run start:dev
+```
+
+**Prisma Generate Hatası:**
+```bash
+# Prisma client'ı yeniden generate edin
+npx prisma generate --force
+```
 
 ## 📄 Lisans
+Özel lisans - Kullanım için izin gereklidir.
 
-Bu proje özel lisans altındadır.
+---
+**Geliştirici**: Raziye Kavurgacı
+
+

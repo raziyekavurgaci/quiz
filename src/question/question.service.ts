@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { QuestionRepository } from './question.repository';
-import { CreateQuestionDto, UpdateQuestionDto } from 'src/dto/question.dto';
+import { CreateQuestionDto, UpdateQuestionDto } from '../dto';
 @Injectable()
 export class QuestionService {
   constructor(private readonly questionRepository: QuestionRepository) {}
@@ -25,7 +25,10 @@ export class QuestionService {
       throw new BadRequestException('Question already exists');
     }
     const question = await this.questionRepository.create(data);
-    return question;
+    return {
+      message: 'Question created successfully',
+      data: question,
+    };
   }
 
   async indexQuestions() {
@@ -33,7 +36,10 @@ export class QuestionService {
     if (questions.length === 0) {
       throw new NotFoundException('No questions found');
     }
-    return questions;
+    return {
+      message: 'Questions fetched successfully',
+      data: questions,
+    };
   }
 
   async showQuestion(id: string) {
@@ -41,13 +47,20 @@ export class QuestionService {
     if (!question || question.deletedAt) {
       throw new NotFoundException('Question not found');
     }
-    return question;
+    return {
+      message: 'Question fetched successfully',
+      data: question,
+    };
   }
 
   async updateQuestion(id: string, data: UpdateQuestionDto) {
     const question = await this.checkQuestionById(id);
-    if (!question || question.deletedAt) {
+    if (!question) {
       throw new NotFoundException('Question not found');
+    }
+
+    if (question.questionText === data.questionText) {
+      throw new BadRequestException('Question text cannot be the same');
     }
 
     const existQuestion = await this.checkQuestionText(data.questionText);
@@ -56,17 +69,29 @@ export class QuestionService {
     }
 
     const updatedQuestion = await this.questionRepository.update(id, data);
-    return updatedQuestion;
+    return {
+      message: 'Question updated successfully',
+      data: updatedQuestion,
+    };
   }
 
   async deleteQuestion(id: string) {
     const question = await this.checkQuestionById(id);
-    if (!question || question.deletedAt) {
+    if (!question) {
       throw new NotFoundException('Question not found');
     }
     await this.questionRepository.delete(id);
     return {
       message: 'Question deleted successfully',
+    };
+  }
+
+  async getRandomQuestion() {
+    const skip = Math.floor(Math.random() * 10);
+    const question = await this.questionRepository.random(skip);
+    return {
+      message: 'Random question fetched successfully',
+      data: question,
     };
   }
 }

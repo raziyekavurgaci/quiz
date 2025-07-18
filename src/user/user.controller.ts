@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Patch, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UpdateUserDto } from '../dto/user.dto';
+import { UpdateUserDto } from '../dto';
 import { Request } from 'express';
 import { JwtGuard } from '../shared/guards';
 @Controller('api/users')

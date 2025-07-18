@@ -7,6 +7,7 @@ import { OptionRepository } from './option.repository';
 import { CreateOptionDto, UpdateOptionDto } from '../../dto';
 import { QuestionService } from '../question.service';
 import { OptionLabel } from '@prisma/client';
+
 @Injectable()
 export class OptionService {
   constructor(
@@ -62,12 +63,14 @@ export class OptionService {
       throw new BadRequestException('Option type already exists');
     }
 
-    const hasCorrectOption = question.data.options.some(
+    const hasCorrectOption = question.data.options.filter(
       (option) => option.isCorrect,
     );
 
-    if (data.isCorrect && hasCorrectOption) {
-      throw new BadRequestException('Only one correct option is allowed');
+    if (data.isCorrect && hasCorrectOption.length > 0) {
+      await this.optionRepository.update(hasCorrectOption[0].id, questionId, {
+        isCorrect: false,
+      });
     }
 
     const option = await this.optionRepository.create(questionId, data);
@@ -77,16 +80,73 @@ export class OptionService {
     };
   }
 
-  //TODO
+  updateOptionPlain = {
+    optionText: async (
+      data: string,
+      questionId: string,
+      id: string,
+    ): Promise<void> => {
+      const option = await this.checkOptionText(questionId, data);
+      if (option) {
+        throw new BadRequestException('Option already exists');
+      }
+      await this.optionRepository.update(id, questionId, {
+        optionText: data,
+      });
+    },
+
+    optionType: async (
+      data: OptionLabel,
+      questionId: string,
+      id: string,
+    ): Promise<void> => {
+      const option = await this.checkOptionType(questionId, data);
+      if (option) {
+        throw new BadRequestException('Option type already exists');
+      }
+      await this.optionRepository.update(id, questionId, {
+        optionType: data,
+      });
+    },
+
+    isCorrect: async (
+      data: boolean,
+      questionId: string,
+      id: string,
+    ): Promise<void> => {
+      const question = await this.questionService.checkQuestionById(questionId);
+      if (!question || question.deletedAt) {
+        throw new NotFoundException('Question not found');
+      }
+      const hasCorrectOption = question.options.filter(
+        (option) => option.isCorrect,
+      );
+      if (data && hasCorrectOption.length > 0) {
+        await this.optionRepository.correctTransaction(
+          id,
+          hasCorrectOption[0].id,
+          questionId,
+        );
+      }
+    },
+  };
+
   async updateOption(id: string, questionId: string, data: UpdateOptionDto) {
-    const updatedOption = await this.optionRepository.update(
-      id,
-      questionId,
-      data,
-    );
+    await this.checkExistQuestionAndOption(questionId, id);
+    const dataKeys = Object.keys(data);
+
+    if (dataKeys.length === 0) {
+      throw new BadRequestException('No data provided');
+    }
+
+    for (const key of dataKeys) {
+      if (key in this.updateOptionPlain) {
+        await this.updateOptionPlain[key](data[key], questionId, id);
+      }
+    }
+
     return {
       message: 'Option updated successfully',
-      data: updatedOption,
     };
   }
 

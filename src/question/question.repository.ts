@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateQuestionDto, UpdateQuestionDto } from '../dto/question.dto';
+import { CreateQuestionDto, UpdateQuestionDto } from '../dto';
 
 @Injectable()
 export class QuestionRepository {
@@ -18,7 +18,14 @@ export class QuestionRepository {
 
   async show(id: string) {
     return this.prisma.question.findUnique({
-      where: { id },
+      where: { id, deletedAt: null },
+      include: {
+        options: {
+          where: {
+            deletedAt: null,
+          },
+        },
+      },
     });
   }
 
@@ -32,6 +39,13 @@ export class QuestionRepository {
     return this.prisma.question.update({
       where: { id },
       data,
+      include: {
+        options: {
+          where: {
+            deletedAt: null,
+          },
+        },
+      },
     });
   }
 
@@ -40,6 +54,30 @@ export class QuestionRepository {
       where: { id },
       data: {
         deletedAt: new Date(),
+      },
+      include: {
+        options: {
+          where: {
+            deletedAt: null,
+          },
+        },
+      },
+    });
+  }
+
+  async random(skip: number) {
+    return this.prisma.question.findFirst({
+      where: {
+        deletedAt: null,
+      },
+      skip,
+      take: 1,
+      include: {
+        options: {
+          where: {
+            deletedAt: null,
+          },
+        },
       },
     });
   }

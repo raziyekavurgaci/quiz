@@ -49,4 +49,22 @@ export class OptionRepository {
       },
     });
   }
+
+  async correctTransaction(
+    id: string,
+    oldCorrectId: string,
+    questionId: string,
+  ) {
+    await this.prisma.$transaction(async (client) => {
+      await client.option.update({
+        where: { id: oldCorrectId, questionId: questionId },
+        data: { isCorrect: false },
+      });
+
+      await client.option.update({
+        where: { id: id, questionId: questionId },
+        data: { isCorrect: true },
+      });
+    });
+  }
 }
