@@ -1,98 +1,215 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Quiz Uygulaması API
+github linki:https://github.com/raziyekavurgaci/quiz.git
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Bu proje, öğretmen ve öğrenciler için tasarlanmış bir quiz/sınav sistemi API'sidir. NestJS framework'ü kullanılarak geliştirilmiştir.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🚀 Özellikler
 
-## Description
+### 👨‍🏫 Kullanıcı Yönetimi
+- **Kayıt ve Giriş**: Kullanıcılar sisteme kayıt olabilir ve giriş yapabilir
+- **Rol Tabanlı Yetkilendirme**: TEACHER (Öğretmen) ve STUDENT (Öğrenci) rolleri
+- **JWT Authentication**: Güvenli token tabanlı kimlik doğrulama
+- **Çoklu Oturum Yönetimi**: Token yenileme, logout ve tüm cihazlardan çıkış
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### 📝 Soru Yönetimi
+- **Soru Oluşturma**: Öğretmenler çoktan seçmeli sorular oluşturabilir
+- **Soru Görüntüleme**: Tüm kullanıcılar soruları görüntüleyebilir
+- **Soru Güncelleme**: Öğretmenler mevcut soruları düzenleyebilir
+- **Soru Silme**: Öğretmenler soruları silebilir
+- **Çoktan Seçmeli Seçenekler**: A, B, C, D, E seçenekleri ile soru oluşturma
 
-## Project setup
+### 🔐 Güvenlik
+- **Şifre Hashleme**: bcrypt ile güvenli şifre saklama
+- **JWT Token Yönetimi**: Access token ve refresh token sistemi
+- **Role-based Access Control**: Endpoint seviyesinde rol kontrolü
+- **Request Validation**: DTO'lar ile veri doğrulama
 
-```bash
-$ npm install
+## 🛠️ Teknolojiler
+
+- **Backend Framework**: NestJS
+- **Veritabanı**: PostgreSQL
+- **ORM**: Prisma
+- **Authentication**: JWT (jsonwebtoken)
+- **Validation**: class-validator, class-transformer
+- **Password Hashing**: bcrypt
+- **TypeScript**: Full TypeScript desteği
+
+## 📁 Proje Yapısı
+
+```
+src/
+├── auth/           # Kimlik doğrulama modülü
+├── user/           # Kullanıcı yönetimi modülü
+├── question/       # Soru yönetimi modülü
+├── prisma/         # Veritabanı bağlantı modülü
+├── jwt/            # JWT servis modülü
+├── dto/            # Data Transfer Objects
+├── shared/         # Paylaşılan bileşenler
+│   ├── decorators/ # Custom decorators
+│   └── guards/     # Authentication guards
+└── types/          # TypeScript tip tanımları
 ```
 
-## Compile and run the project
+## 🗄️ Veritabanı Şeması
 
+### User (Kullanıcı)
+- `id`: UUID (Primary Key)
+- `name`: Kullanıcı adı
+- `username`: Benzersiz kullanıcı adı
+- `password`: Hash'lenmiş şifre
+- `role`: TEACHER veya STUDENT
+
+### Question (Soru)
+- `id`: UUID (Primary Key)
+- `questionText`: Soru metni
+- `options`: İlişkili seçenekler
+
+### Option (Seçenek)
+- `id`: UUID (Primary Key)
+- `optionText`: Seçenek metni
+- `optionType`: A, B, C, D, E
+- `isCorrect`: Doğru cevap kontrolü
+
+### Answer (Cevap)
+- `id`: UUID (Primary Key)
+- `userId`: Cevap veren kullanıcı
+- `questionId`: İlgili soru
+- `optionId`: Seçilen seçenek
+- `isCorrect`: Cevabın doğruluğu
+
+## 🔌 API Endpoints
+
+### Authentication (/api/auth)
+- `POST /register` - Kullanıcı kaydı
+- `POST /login` - Giriş yapma
+- `POST /logout` - Çıkış yapma
+- `POST /refresh` - Token yenileme
+- `POST /logout-all` - Tüm cihazlardan çıkış
+
+### Users (/api/users)
+- `GET /me` - Mevcut kullanıcı bilgileri
+- `PATCH /` - Kullanıcı bilgilerini güncelleme
+
+### Questions (/api/questions)
+- `POST /` - Soru oluşturma (Sadece öğretmenler)
+- `GET /` - Tüm soruları listeleme
+- `GET /:id` - Belirli bir soruyu görüntüleme
+- `PATCH /:id` - Soru güncelleme (Sadece öğretmenler)
+- `DELETE /:id` - Soru silme (Sadece öğretmenler)
+
+## 🚀 Kurulum ve Çalıştırma
+
+### Gereksinimler
+- Node.js (v16+)
+- PostgreSQL
+- npm veya yarn
+
+### Kurulum Adımları
+
+1. **Bağımlılıkları yükleyin:**
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm install
 ```
 
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+2. **Çevre değişkenlerini ayarlayın:**
+`.env` dosyası oluşturun ve aşağıdaki değişkenleri ekleyin:
+```env
+DATABASE_URL="postgresql://username:password@localhost:5432/quiz_db"
+JWT_SECRET="your-secret-key"
+PORT=3000
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+3. **Veritabanını hazırlayın:**
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npx prisma migrate dev
+npx prisma generate
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+4. **Uygulamayı başlatın:**
 
-## Resources
+**Development modunda:**
+```bash
+npm run start:dev
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+**Production modunda:**
+```bash
+npm run build
+npm run start:prod
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## 📝 Kullanım Örnekleri
 
-## Support
+### Kayıt Olma
+```bash
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Ahmet Yılmaz",
+    "username": "ahmet.yilmaz",
+    "password": "123456"
+  }'
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Giriş Yapma
+```bash
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "ahmet.yilmaz",
+    "password": "123456"
+  }'
+```
 
-## Stay in touch
+### Soru Oluşturma (Öğretmen)
+```bash
+curl -X POST http://localhost:3000/api/questions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "questionText": "Türkiye'nin başkenti neresidir?",
+    "options": [
+      {
+        "optionText": "İstanbul",
+        "optionType": "A",
+        "isCorrect": false
+      },
+      {
+        "optionText": "Ankara",
+        "optionType": "B",
+        "isCorrect": true
+      }
+    ]
+  }'
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## 🧪 Test
 
-## License
+```bash
+# Unit testler
+npm run test
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+# Test kapsamı
+npm run test:cov
+
+# E2E testler
+npm run test:e2e
+```
+
+## 📦 Build
+
+```bash
+npm run build
+```
+
+## 🔧 Geliştirme Notları
+
+- Tüm endpoint'ler `/api` prefix'i ile başlar
+- JWT token'lar Authorization header'ında `Bearer` formatında gönderilmelidir
+- Rol tabanlı yetkilendirme `@Roles()` decorator'ı ile yapılır
+- Tüm DTO'lar validation pipe'ı ile doğrulanır
+- Soft delete kullanılır (deletedAt alanı)
+
+## 📄 Lisans
+
+Bu proje özel lisans altındadır.
