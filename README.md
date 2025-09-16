@@ -69,7 +69,7 @@ src/
 - `POST /logout` - Çıkış
 - `POST /refresh` - Token yenileme
 - `POST /logout-all` - Tüm cihazlardan çıkış
-
+denedik
 ### Users (/api/users)
 - `GET /me` - Profil bilgileri
 - `PATCH /` - Profil güncelleme
